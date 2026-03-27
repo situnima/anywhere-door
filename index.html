@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>随意门 Anywhere Door</title>
+    <meta
+      name="description"
+      content="随意门 Anywhere Door：纯前端、无登录、无后端的个人导航站，支持分类管理、搜索过滤、导入导出与本地持久化。"
+    />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="icon" type="image/x-icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body
+    data-theme="light"
+    data-density="standard"
+    data-card-style="mist"
+    data-open-mode="new"
+    data-wallpaper="mist"
+    data-wallpaper-mode="preset"
+  >
+    <main class="app-shell">
+      <header class="glass-panel top-bar" aria-label="页面顶部工具栏">
+        <div class="brand-lockup">
+          <img
+            class="brand-mark-image"
+            src="./favicon.png"
+            alt=""
+            aria-hidden="true"
+          />
+          <div>
+            <p class="eyebrow">Anywhere Door</p>
+            <h1 class="text-balance">随意门</h1>
+          </div>
+        </div>
+
+        <div class="search-cluster">
+          <form class="search-bar" role="search" id="search-form">
+            <label class="sr-only" for="global-search">搜索站点</label>
+            <span class="search-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <circle cx="11" cy="11" r="6.5"></circle>
+                <path d="M16 16L20 20"></path>
+              </svg>
+            </span>
+            <input
+              id="global-search"
+              type="search"
+              name="search"
+              autocomplete="off"
+              placeholder="搜索名称或网址，例如 figma / github"
+            />
+          </form>
+        </div>
+
+        <div class="top-actions">
+          <button
+            id="theme-toggle"
+            type="button"
+            class="button button-secondary icon-button theme-toggle"
+            aria-pressed="false"
+            aria-label="切换夜间模式"
+          >
+            <svg
+              class="theme-icon theme-icon-current"
+              viewBox="0 0 24 24"
+              focusable="false"
+              aria-hidden="true"
+            >
+              <path
+                d="M18.5 14.75A7.5 7.5 0 0 1 9.25 5.5A8.25 8.25 0 1 0 18.5 14.75Z"
+              ></path>
+            </svg>
+          </button>
+          <button
+            id="new-site-button"
+            type="button"
+            class="button button-primary"
+          >
+            新增站点
+          </button>
+          <details class="overflow-menu">
+            <summary
+              class="button button-secondary icon-button"
+              aria-label="打开更多选项"
+              aria-haspopup="menu"
+              aria-expanded="false"
+            >
+              <span aria-hidden="true">···</span>
+            </summary>
+            <div class="menu-panel glass-panel" role="menu" aria-label="更多选项">
+              <button
+                type="button"
+                class="menu-item"
+                role="menuitem"
+                data-dialog-target="appearance-dialog"
+              >
+                视觉设置
+              </button>
+              <button
+                type="button"
+                class="menu-item"
+                role="menuitem"
+                data-dialog-target="transfer-dialog"
+              >
+                数据迁移
+              </button>
+              <button
+                type="button"
+                class="menu-item"
+                role="menuitem"
+                data-dialog-target="shortcuts-dialog"
+              >
+                效率操作
+              </button>
+              <button
+                type="button"
+                class="menu-item"
+                role="menuitem"
+                data-dialog-target="about-dialog"
+              >
+                关于
+              </button>
+            </div>
+          </details>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="glass-panel sidebar" aria-labelledby="category-nav-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">分类导航</p>
+              <h2 id="category-nav-title">快速入口</h2>
+            </div>
+            <button
+              id="manage-categories-button"
+              type="button"
+              class="button button-ghost"
+            >
+              管理分组
+            </button>
+          </div>
+
+          <nav aria-label="分类列表">
+            <ul id="category-list" class="category-list"></ul>
+          </nav>
+
+          <p id="sidebar-hint" class="micro-copy sidebar-hint">
+            通过分组整理常用网站，搜索只匹配名称和网址。
+          </p>
+        </aside>
+
+        <section class="main-stage" aria-label="主内容区域">
+          <article
+            id="empty-state-card"
+            class="glass-panel preview-card section-state-card"
+            hidden
+            aria-labelledby="empty-state-title"
+          >
+            <div class="empty-state">
+              <div class="empty-mark" aria-hidden="true">AD</div>
+              <h2 id="empty-state-title" class="text-balance">
+                你的随意门还没有站点
+              </h2>
+              <p class="text-pretty">
+                可以从零开始整理分类和常用网址，或者先导入示例数据确认布局与交互方式。
+              </p>
+              <div class="empty-actions">
+                <button
+                  id="load-sample-button"
+                  type="button"
+                  class="button button-primary"
+                >
+                  导入示例数据
+                </button>
+                <button
+                  id="empty-manage-categories-button"
+                  type="button"
+                  class="button button-secondary"
+                >
+                  管理分组
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <article
+            id="search-empty"
+            class="glass-panel preview-card search-empty-state section-state-card"
+            hidden
+            aria-live="polite"
+          >
+            <div class="empty-state">
+              <div class="empty-mark" aria-hidden="true">0</div>
+              <h2 class="text-balance">没有匹配的站点</h2>
+              <p class="text-pretty">
+                试试搜索站点名称或网址，或者清空关键词回到完整导航视图。
+              </p>
+              <button id="clear-search" type="button" class="button button-primary">
+                清空搜索
+              </button>
+            </div>
+          </article>
+
+          <div id="sections-root" class="section-stack" aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+
+    <dialog
+      id="appearance-dialog"
+      class="app-dialog glass-panel"
+      aria-labelledby="appearance-title"
+    >
+      <form method="dialog" class="dialog-form">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">视觉设置</p>
+            <h2 id="appearance-title">外观与打开方式</h2>
+          </div>
+          <button
+            type="submit"
+            class="button button-ghost icon-button"
+            aria-label="关闭视觉设置弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form">
+          <fieldset class="choice-group">
+            <legend>主题模式</legend>
+            <label class="chip-option">
+              <input type="radio" name="dialog-theme" value="light" checked />
+              <span>白天</span>
+            </label>
+            <label class="chip-option">
+              <input type="radio" name="dialog-theme" value="dark" />
+              <span>黑夜</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="choice-group">
+            <legend>布局密度</legend>
+            <label class="chip-option">
+              <input type="radio" name="density" value="relaxed" />
+              <span>舒展</span>
+            </label>
+            <label class="chip-option">
+              <input type="radio" name="density" value="standard" checked />
+              <span>标准</span>
+            </label>
+            <label class="chip-option">
+              <input type="radio" name="density" value="compact" />
+              <span>紧凑</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="choice-group">
+            <legend>卡片样式</legend>
+            <label class="chip-option">
+              <input type="radio" name="card-style" value="mist" checked />
+              <span>柔雾玻璃</span>
+            </label>
+            <label class="chip-option">
+              <input type="radio" name="card-style" value="clear" />
+              <span>更清透</span>
+            </label>
+            <label class="chip-option">
+              <input type="radio" name="card-style" value="solid" />
+              <span>更稳重</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="choice-group">
+            <legend>打开方式</legend>
+            <label class="chip-option">
+              <input type="radio" name="open-mode" value="new" checked />
+              <span>新标签页</span>
+            </label>
+            <label class="chip-option">
+              <input type="radio" name="open-mode" value="self" />
+              <span>当前标签页</span>
+            </label>
+          </fieldset>
+
+          <fieldset class="choice-group">
+            <legend>壁纸预设</legend>
+            <div class="swatch-row" aria-label="壁纸预设">
+              <button
+                type="button"
+                class="swatch is-selected"
+                aria-label="选择晨雾壁纸"
+                aria-pressed="true"
+                data-wallpaper-value="mist"
+              ></button>
+              <button
+                type="button"
+                class="swatch swatch-warm"
+                aria-label="选择暖沙壁纸"
+                aria-pressed="false"
+                data-wallpaper-value="warm"
+              ></button>
+              <button
+                type="button"
+                class="swatch swatch-cool"
+                aria-label="选择冰湖壁纸"
+                aria-pressed="false"
+                data-wallpaper-value="cool"
+              ></button>
+              <button
+                type="button"
+                class="swatch swatch-dark"
+                aria-label="选择深夜壁纸"
+                aria-pressed="false"
+                data-wallpaper-value="night"
+              ></button>
+            </div>
+          </fieldset>
+
+          <section class="dialog-card">
+            <h3>上传壁纸</h3>
+            <div class="inline-button-row">
+              <button
+                id="upload-wallpaper-button"
+                type="button"
+                class="button button-secondary"
+              >
+                上传壁纸
+              </button>
+              <button
+                id="reset-wallpaper-button"
+                type="button"
+                class="button button-ghost"
+              >
+                恢复预设
+              </button>
+            </div>
+            <p id="wallpaper-status" class="micro-copy" aria-live="polite">
+              当前使用预设壁纸。
+            </p>
+            <input
+              id="wallpaper-upload-input"
+              type="file"
+              accept="image/*"
+              hidden
+            />
+          </section>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="submit" class="button button-secondary">关闭</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog
+      id="transfer-dialog"
+      class="app-dialog glass-panel"
+      aria-labelledby="transfer-title"
+    >
+      <form method="dialog" class="dialog-form">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">数据迁移</p>
+            <h2 id="transfer-title">导入与导出</h2>
+          </div>
+          <button
+            type="submit"
+            class="button button-ghost icon-button"
+            aria-label="关闭数据迁移弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form">
+          <section class="dialog-card">
+            <h3>导出内容</h3>
+            <label class="checkbox-row">
+              <input id="export-icons" type="checkbox" checked />
+              <span>导出上传图标</span>
+            </label>
+            <label class="checkbox-row">
+              <input id="export-wallpaper" type="checkbox" />
+              <span>导出上传壁纸</span>
+            </label>
+            <p class="micro-copy">
+              默认导出分类、网址、基础设置和上传图标。若包含壁纸，文件体积会明显增大。
+            </p>
+            <p id="export-size-note" class="micro-copy">预计导出大小：--</p>
+            <div class="inline-button-row">
+              <button
+                id="export-json-button"
+                type="button"
+                class="button button-primary"
+              >
+                导出 JSON
+              </button>
+            </div>
+          </section>
+
+          <section class="dialog-card">
+            <h3>导入模式</h3>
+            <div class="mode-grid">
+              <article
+                class="mode-card is-selected"
+                data-import-mode="replace"
+                tabindex="0"
+                role="button"
+                aria-pressed="true"
+              >
+                <strong>覆盖全部</strong>
+                <p class="text-pretty">清空当前浏览器数据后完整恢复导入文件。</p>
+              </article>
+              <article
+                class="mode-card"
+                data-import-mode="merge"
+                tabindex="0"
+                role="button"
+                aria-pressed="false"
+              >
+                <strong>合并导入</strong>
+                <p class="text-pretty">
+                  以网址为冲突判断键，重复项用导入数据覆盖本地记录。
+                </p>
+              </article>
+            </div>
+            <div class="inline-button-row inline-button-row-gap">
+              <button
+                id="import-json-button"
+                type="button"
+                class="button button-primary"
+              >
+                选择 JSON 导入
+              </button>
+              <button
+                id="import-sample-button"
+                type="button"
+                class="button button-secondary"
+              >
+                导入示例数据
+              </button>
+            </div>
+            <input id="import-file-input" type="file" accept="application/json" hidden />
+          </section>
+
+          <section
+            id="import-feedback-card"
+            class="dialog-card"
+            hidden
+            aria-live="polite"
+          >
+            <h3>导入反馈</h3>
+            <div id="import-feedback-summary" class="feedback-summary"></div>
+            <ul id="import-feedback-list" class="feedback-list"></ul>
+          </section>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="submit" class="button button-secondary">关闭</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog
+      id="shortcuts-dialog"
+      class="app-dialog glass-panel"
+      aria-labelledby="shortcuts-title"
+    >
+      <form method="dialog" class="dialog-form">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">效率操作</p>
+            <h2 id="shortcuts-title">快捷键与快速搜索</h2>
+          </div>
+          <button
+            type="submit"
+            class="button button-ghost icon-button"
+            aria-label="关闭效率操作弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form">
+          <section class="dialog-card">
+            <h3>快捷键</h3>
+            <ul class="shortcut-list">
+              <li><span>聚焦搜索</span><kbd>/</kbd></li>
+              <li><span>命令搜索</span><kbd>Cmd/Ctrl + K</kbd></li>
+              <li><span>打开结果</span><kbd>Enter</kbd></li>
+              <li><span>新建站点</span><kbd>N</kbd></li>
+              <li><span>关闭或清空</span><kbd>Esc</kbd></li>
+            </ul>
+          </section>
+
+          <section class="dialog-card">
+            <h3>搜索行为</h3>
+            <ul class="behavior-list">
+              <li>只匹配名称和网址，不搜索描述、标签和备注。</li>
+              <li>没有高亮结果时，回车会默认打开首条可见站点。</li>
+              <li>分类导航会随着搜索结果和滚动位置自动同步。</li>
+            </ul>
+          </section>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="submit" class="button button-primary">完成</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="about-dialog" class="app-dialog glass-panel" aria-labelledby="about-title">
+      <form method="dialog" class="dialog-form">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">关于</p>
+            <h2 id="about-title">本地存储与范围说明</h2>
+          </div>
+          <button
+            type="submit"
+            class="button button-ghost icon-button"
+            aria-label="关闭关于弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form">
+          <section class="dialog-card">
+            <h3>数据边界</h3>
+            <ul class="behavior-list">
+              <li>所有数据只保存在当前浏览器，无登录、无后端、无自动同步。</li>
+              <li>清除浏览器数据或更换浏览器后，需要通过 JSON 导入恢复。</li>
+              <li>上传图标和上传壁纸也保存在当前浏览器，并可随 JSON 一并迁移。</li>
+            </ul>
+          </section>
+
+          <section class="dialog-card">
+            <h3>当前版本范围</h3>
+            <ul class="behavior-list">
+              <li>支持分类导航、搜索过滤、站点管理、拖拽排序和本地持久化。</li>
+              <li>支持主题、壁纸、布局密度、卡片样式和链接打开方式设置。</li>
+              <li>V1 仅以现代桌面浏览器为目标，不包含账号体系与跨设备同步。</li>
+            </ul>
+          </section>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="submit" class="button button-primary">知道了</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog
+      id="editor-dialog"
+      class="app-dialog glass-panel"
+      aria-labelledby="editor-title"
+    >
+      <form id="editor-form" class="dialog-form" novalidate>
+        <header class="dialog-header">
+          <div>
+            <p id="editor-eyebrow" class="eyebrow">新增站点</p>
+            <h2 id="editor-title">编辑导航项</h2>
+          </div>
+          <button
+            type="button"
+            class="button button-ghost icon-button"
+            data-close-dialog="editor-dialog"
+            aria-label="关闭站点编辑弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form editor-form">
+          <input id="editor-link-id" type="hidden" />
+
+          <label>
+            <span>站点名称</span>
+            <input
+              id="editor-name"
+              name="name"
+              type="text"
+              autocomplete="off"
+              aria-describedby="editor-name-error"
+              required
+            />
+            <small id="editor-name-error" class="field-error" hidden></small>
+          </label>
+
+          <label>
+            <span>网址</span>
+            <input
+              id="editor-url"
+              name="url"
+              type="url"
+              autocomplete="off"
+              inputmode="url"
+              aria-describedby="editor-url-error"
+              required
+            />
+            <small id="editor-url-error" class="field-error" hidden></small>
+          </label>
+
+          <label>
+            <span>所属分类</span>
+            <select
+              id="editor-category"
+              name="category"
+              aria-describedby="editor-category-error"
+            ></select>
+            <small id="editor-category-error" class="field-error" hidden></small>
+          </label>
+
+          <label>
+            <span>描述</span>
+            <textarea id="editor-description" name="description" rows="3"></textarea>
+          </label>
+
+          <div class="inline-fields">
+            <label>
+              <span>标签</span>
+              <input
+                id="editor-tags"
+                name="tags"
+                type="text"
+                autocomplete="off"
+                placeholder="用逗号分隔"
+              />
+            </label>
+            <label>
+              <span>备注</span>
+              <input id="editor-note" name="note" type="text" autocomplete="off" />
+            </label>
+          </div>
+
+          <fieldset class="choice-group">
+            <legend>图标来源</legend>
+            <div class="pill-group" aria-label="图标来源选项">
+              <button
+                type="button"
+                class="pill-button is-selected"
+                data-icon-mode="auto"
+                aria-pressed="true"
+              >
+                自动 favicon
+              </button>
+              <button
+                type="button"
+                class="pill-button"
+                data-icon-mode="upload"
+                aria-pressed="false"
+              >
+                上传图标
+              </button>
+              <button
+                type="button"
+                class="pill-button"
+                data-icon-mode="preset"
+                aria-pressed="false"
+              >
+                默认图标
+              </button>
+            </div>
+          </fieldset>
+
+          <section id="editor-upload-panel" class="dialog-card icon-source-panel" hidden>
+            <h3>上传图标</h3>
+            <div class="inline-button-row">
+              <button
+                id="upload-icon-button"
+                type="button"
+                class="button button-secondary"
+              >
+                选择图标
+              </button>
+              <button
+                id="clear-icon-upload-button"
+                type="button"
+                class="button button-ghost"
+              >
+                清除上传
+              </button>
+            </div>
+            <div id="editor-upload-preview" class="asset-preview" hidden></div>
+            <p id="editor-upload-status" class="micro-copy">未选择文件。</p>
+            <input id="editor-icon-file" type="file" accept="image/*" hidden />
+          </section>
+
+          <section id="editor-preset-panel" class="dialog-card icon-source-panel" hidden>
+            <h3>默认图标</h3>
+            <div id="preset-icon-grid" class="preset-icon-grid" role="list"></div>
+          </section>
+
+          <p id="editor-form-status" class="micro-copy status-note" aria-live="polite"></p>
+        </div>
+
+        <footer class="dialog-footer">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-close-dialog="editor-dialog"
+          >
+            取消
+          </button>
+          <button type="submit" class="button button-primary">保存站点</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog
+      id="category-dialog"
+      class="app-dialog glass-panel"
+      aria-labelledby="category-dialog-title"
+    >
+      <div class="dialog-form">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">管理分组</p>
+            <h2 id="category-dialog-title">新增、重命名与排序分类</h2>
+          </div>
+          <button
+            type="button"
+            class="button button-ghost icon-button"
+            data-close-dialog="category-dialog"
+            aria-label="关闭分类管理弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form">
+          <section class="dialog-card">
+            <form id="category-create-form" class="category-create-form">
+              <label class="category-create-field">
+                <span class="sr-only">新增分类名称</span>
+                <input
+                  id="category-create-input"
+                  type="text"
+                  placeholder="输入新的分类名称"
+                  autocomplete="off"
+                  aria-describedby="category-create-status"
+                />
+              </label>
+              <button type="submit" class="button button-primary">新增分类</button>
+            </form>
+            <p id="category-create-status" class="micro-copy status-note" aria-live="polite">
+              可拖拽排序；仅空分类允许删除。
+            </p>
+          </section>
+
+          <section class="dialog-card">
+            <h3>已有分类</h3>
+            <ul id="category-manager-list" class="category-manager-list"></ul>
+            <p id="category-manager-empty" class="micro-copy" hidden>
+              还没有分类，先新增一个分组再开始整理站点。
+            </p>
+          </section>
+        </div>
+
+        <footer class="dialog-footer">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-close-dialog="category-dialog"
+          >
+            完成
+          </button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog
+      id="confirm-dialog"
+      class="app-dialog app-dialog-sm glass-panel"
+      aria-labelledby="confirm-title"
+    >
+      <div class="dialog-form">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow">确认删除</p>
+            <h2 id="confirm-title">删除当前内容</h2>
+          </div>
+          <button
+            type="button"
+            class="button button-ghost icon-button"
+            data-close-dialog="confirm-dialog"
+            aria-label="关闭删除确认弹窗"
+          >
+            ×
+          </button>
+        </header>
+
+        <div class="dialog-body stack-form">
+          <p id="confirm-message" class="text-pretty">
+            该操作无法撤销，确认要继续吗？
+          </p>
+        </div>
+
+        <footer class="dialog-footer">
+          <button
+            type="button"
+            class="button button-secondary"
+            data-close-dialog="confirm-dialog"
+          >
+            取消
+          </button>
+          <button id="confirm-submit" type="button" class="button button-danger">
+            确认删除
+          </button>
+        </footer>
+      </div>
+    </dialog>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
