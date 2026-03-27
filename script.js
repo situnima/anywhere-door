@@ -1272,15 +1272,15 @@ function createSiteIcon(link) {
       const origin = new URL(link.url).origin;
       const iconState = faviconStateCache.get(origin);
 
-      if (iconState === "failed" || iconState === "pending") {
+      if (iconState === "failed") {
         attachIconFallback(icon, getMonogram(link.name), pickVariant(link.name));
         return icon;
       }
 
-      faviconStateCache.set(origin, "pending");
       const image = document.createElement("img");
       image.alt = "";
       image.src = `${origin}/favicon.ico`;
+      faviconStateCache.set(origin, "pending");
       image.addEventListener(
         "load",
         () => {

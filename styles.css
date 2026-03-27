@@ -485,6 +485,14 @@ body[data-theme="dark"] .button-danger {
   transition: transform 160ms ease-out, opacity 160ms ease-out;
 }
 
+.menu-panel::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  inset-block-end: 100%;
+  block-size: 10px;
+}
+
 body[data-theme="dark"] .menu-panel {
   background: rgba(30, 37, 49, 0.94);
   border-color: rgba(255, 255, 255, 0.14);
