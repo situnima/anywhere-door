@@ -206,6 +206,12 @@ h3 {
   gap: 14px;
 }
 
+.brand-lockup h1 {
+  font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", SimSun,
+    serif;
+  font-weight: 500;
+}
+
 .brand-mark,
 .empty-mark {
   inline-size: 52px;
