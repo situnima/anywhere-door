@@ -220,13 +220,13 @@ h3 {
   color: var(--accent);
 }
 
-.brand-mark-image {
+.brand-mark-image,
+.empty-mark-image {
   inline-size: 52px;
   block-size: 52px;
   border-radius: 18px;
   object-fit: cover;
   flex: 0 0 auto;
-  box-shadow: 0 10px 26px rgba(53, 72, 110, 0.12);
 }
 
 body[data-theme="dark"] .brand-mark,
@@ -234,10 +234,6 @@ body[data-theme="dark"] .empty-mark {
   background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.16);
   box-shadow: none;
-}
-
-body[data-theme="dark"] .brand-mark-image {
-  box-shadow: 0 14px 32px rgba(2, 6, 18, 0.34);
 }
 
 .eyebrow {
