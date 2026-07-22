@@ -1755,7 +1755,11 @@ function syncDialogLayout(dialog) {
   if (!(shell instanceof HTMLElement)) return;
 
   const maxHeight = Math.max(window.innerHeight - 32, 320);
-  const naturalHeight = shell.scrollHeight + 2;
+  const borderHeight = dialog.offsetHeight - dialog.clientHeight;
+  const naturalHeight = [...shell.children].reduce(
+    (height, child) => height + Math.max(child.scrollHeight, child.offsetHeight),
+    borderHeight,
+  );
   dialog.style.blockSize = `${Math.min(naturalHeight, maxHeight)}px`;
 }
 
